@@ -242,7 +242,6 @@ public class SynchronizedQueue {
             consumer.join();
             producer.join();
             
-            
             // Do some sanity checking to see if the Threads work as
             // expected.
             if (consumer == null 

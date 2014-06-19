@@ -229,6 +229,7 @@ public class SynchronizedQueue {
             consumer.start();
             producer.start();
             
+            
             // Give the Threads a chance to run before interrupting
             // them.
             Thread.sleep(100);
@@ -241,7 +242,6 @@ public class SynchronizedQueue {
             // exit.
             consumer.join();
             producer.join();
-            
             
             // Do some sanity checking to see if the Threads work as
             // expected.
