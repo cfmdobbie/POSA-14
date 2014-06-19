@@ -47,6 +47,7 @@ public class AndroidPlatformStrategy extends PlatformStrategy
     {
         /** (Re)initialize the CountDownLatch. */
         // TODO - You fill in here.
+        mLatch = new CountDownLatch(NUMBER_OF_THREADS);
     }
 
     /** Print the outputString to the display. */
@@ -57,18 +58,47 @@ public class AndroidPlatformStrategy extends PlatformStrategy
          * and appends the outputString to a TextView. 
          */
         // TODO - You fill in here.
+        final Activity activity = mActivity.get();
+        // NOTE: Must check the return from a WeakReference before using it!
+        if(activity != null) {
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    mTextViewOutput.append(outputString + "\n");
+                }
+            });
+        }
     }
 
     /** Indicate that a game thread has finished running. */
     public void done()
     {	
         // TODO - You fill in here.
+        final Activity activity = mActivity.get();
+        // NOTE: Must check the return from a WeakReference before using it!
+        if(activity != null) {
+            // NOTE: This is run on the UI thread to ensure that is gets queued after
+            // any pending TextView updates.  Don't want the mLtch.await() call in
+            // awaitDone() to un-block until all TextView updates have been done.
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    mLatch.countDown();
+                }
+            });
+        }
     }
 
     /** Barrier that waits for all the game threads to finish. */
     public void awaitDone()
     {
         // TODO - You fill in here.
+        try {
+            mLatch.await();
+        } catch(InterruptedException e) {
+            // NOTE: Our contract does not allow us to throw this exception, but
+            // there's no suitable way to notify the app that something went wrong.
+            // Just log it with Android and move on:
+            errorLog(AndroidPlatformStrategy.class.getName(), "InterruptedException: " + e.getMessage());
+        }
     }
 
     /** 
