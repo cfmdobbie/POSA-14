@@ -37,22 +37,20 @@ public class PingPongRight {
          * SimpleSemaphores.  If you don't use this implementation
          * feel free to remove these constants.
          */
-    	// NOTE: Am using two SimpleSemaphore variables, so don't need these constants
-        //private final static int FIRST_SEMA = 0;
-        //private final static int SECOND_SEMA = 1;
+        private final static int FIRST_SEMA = 0;
+        private final static int SECOND_SEMA = 1;
 
         /**
          * Maximum number of loop iterations.
          */
-    	// NOTE: Default assignment removed so am able to declare member variable final
-        private final int mMaxLoopIterations;
+        private int mMaxLoopIterations = 0;
 
         /**
          * String to print (either "ping!" or "pong"!) for each
          * iteration.
          */
         // TODO - You fill in here.
-        private final String mStringToPrint;
+        private final String mStringtoPrint;
 
         /**
          * Two SimpleSemaphores use to alternate pings and pongs.  You
@@ -60,21 +58,21 @@ public class PingPongRight {
          * two data members.
          */
         // TODO - You fill in here.
-        private final SimpleSemaphore mSemaphoreToAcquire;
-        private final SimpleSemaphore mSemaphoreToRelease;
+        private final SimpleSemaphore mSemaphoreOne;
+        private final SimpleSemaphore mSemaphoreTwo;
 
         /**
          * Constructor initializes the data member(s).
          */
         public PlayPingPongThread(String stringToPrint,
-                                  SimpleSemaphore semaphoreToAcquire,
-                                  SimpleSemaphore semaphoreToRelease,
+                                  SimpleSemaphore semaphoreOne,
+                                  SimpleSemaphore semaphoreTwo,
                                   int maxIterations) {
             // TODO - You fill in here.
-        	this.mStringToPrint = stringToPrint;
-        	this.mSemaphoreToAcquire = semaphoreToAcquire;
-        	this.mSemaphoreToRelease = semaphoreToRelease;
-        	this.mMaxLoopIterations = maxIterations;
+        	mStringtoPrint = stringToPrint;
+        	mSemaphoreOne = semaphoreOne;
+        	mSemaphoreTwo = semaphoreTwo;
+        	mMaxLoopIterations = maxIterations;
         }
 
         /**
@@ -89,25 +87,13 @@ public class PingPongRight {
              */
 
             // TODO - You fill in here.
-        	try {
-	        	for(int i = 0 ; i < mMaxLoopIterations ; i++) {
-	        		// NOTE: Expected output is one-based , not zero-based.  Using non-standard
-	        		// looping variables is a common source of error, so am using a standard
-	        		// zero-based "for" loop and calculating the display value separately.
-	        		final int displayedIteration = i + 1;
-	        		try {
-	        			acquire();
-	        			System.out.println(mStringToPrint + "(" + displayedIteration + ")");
-	        		} finally {
-	        			release();
-	        		}
-	        	}
-        	} finally {
-            	// NOTE: This thread has completed, decrement the latch by one.
-        		// This is done in a finally block to ensure that whatever happens,
-        		// the latch knows the thread has exited.
-            	mLatch.countDown();
+        	for (int loopsDone = 1; loopsDone <= mMaxIterations; ++loopsDone)
+        	{
+        		acquire();
+        		System.out.println(mStringtoPrint + "(" + loopsDone + ")");
+        		release();
         	}
+        	mLatch.countDown();
         }
 
         /**
@@ -115,7 +101,7 @@ public class PingPongRight {
          */
         private void acquire() {
             // TODO fill in here
-        	mSemaphoreToAcquire.acquireUninterruptibly();
+        	mSemaphoreOne.acquireUninterruptibly();
         }
 
         /**
@@ -123,7 +109,7 @@ public class PingPongRight {
          */
         private void release() {
             // TODO fill in here
-        	mSemaphoreToRelease.release();
+        	mSemaphoreTwo.release();
         }
     }
 
@@ -144,21 +130,24 @@ public class PingPongRight {
         // alternation between threads.
 
         // TODO - You fill in here, make pingSema start out unlocked.
-        final boolean fair = true;
-        SimpleSemaphore pingSema = new SimpleSemaphore(1, fair);
+        SimpleSemaphore pingSema = new SimpleSemaphore(1, false);
         // TODO - You fill in here, make pongSema start out locked.
-        SimpleSemaphore pongSema = new SimpleSemaphore(0, fair);
+        SimpleSemaphore pongSema = new SimpleSemaphore(0, false);
 
         System.out.println(startString);
 
         // Create the ping and pong threads, passing in the string to
         // print and the appropriate SimpleSemaphores.
-        PlayPingPongThread ping = new PlayPingPongThread(
-        		pingString, pingSema, pongSema, maxIterations
-        );
-        PlayPingPongThread pong = new PlayPingPongThread(
-        		pongString, pongSema, pingSema, maxIterations
-        );
+        PlayPingPongThread ping = new PlayPingPongThread(/*
+										                  * TODO - You fill in
+										                  * here
+										                  */
+        		pingString, pingSema, pongSema, mMaxIterations);
+        PlayPingPongThread pong = new PlayPingPongThread(/*
+                                                          * TODO - You fill in
+                                                          * here
+                                                          */
+        		pongString, pongSema, pingSema, mMaxIterations);
 
         // TODO - Initiate the ping and pong threads, which will call
         // the run() hook method.
@@ -168,7 +157,6 @@ public class PingPongRight {
         // TODO - replace the following line with a barrier
         // synchronizer call to mLatch that waits for both threads to
         // finish.
-        // NOTE: Could just use join() on the two threads here, but latches are cool, so... :-)
         mLatch.await();
 
         System.out.println(finishString);
