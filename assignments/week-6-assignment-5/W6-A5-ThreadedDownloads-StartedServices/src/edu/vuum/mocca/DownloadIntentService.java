@@ -63,12 +63,12 @@ public class DownloadIntentService extends IntentService {
     	// TODO - You fill in here to replace null with a call to the
     	// factory method in DownloadUtils that makes a Messenger
     	// Intent with the appropriate parameters.
-    	
-    	// NOTE: A factory method exists in DownloadUtils to make a suitable
-    	// Intent that contains a Messenger and the passed URI, so we just
-    	// need to call it to obtain the Intent:
-    	final Intent newIntent = DownloadUtils.makeMessengerIntent(context, DownloadIntentService.class, handler, uri);
-    	// NOTE: And return it!
+        
+        // NOTE: A factory method exists in DownloadUtils to make a suitable
+        // Intent that contains a Messenger and the passed URI, so we just
+        // need to call it to obtain the Intent:
+        final Intent newIntent = DownloadUtils.makeMessengerIntent(context, DownloadIntentService.class, handler, uri);
+        // NOTE: And return it!
         return newIntent;
     }
 
@@ -92,13 +92,13 @@ public class DownloadIntentService extends IntentService {
         // method from the DownloadUtils class that downloads the uri
         // in the intent and returns the file's pathname using a
         // Messenger who's Bundle key is defined by DownloadUtils.MESSENGER_KEY
-    	
-    	// NOTE: The Messenger is held in the Intent's extras Bundle
-    	final Messenger messenger = (Messenger)(intent.getExtras().get(DownloadUtils.MESSENGER_KEY));
-    	// NOTE: While the URI is stored as data:
-    	final Uri uri = intent.getData();
-    	// NOTE: So just need to call the helper method with the context we're
-    	// in and the values we've extracted above:
-    	DownloadUtils.downloadAndRespond(DownloadIntentService.this, uri, messenger);
+        
+        // NOTE: The Messenger is held in the Intent's extras Bundle
+        final Messenger messenger = (Messenger)(intent.getExtras().get(DownloadUtils.MESSENGER_KEY));
+        // NOTE: While the URI is stored as data:
+        final Uri uri = intent.getData();
+        // NOTE: So just need to call the helper method with the context we're
+        // in and the values we've extracted above:
+        DownloadUtils.downloadAndRespond(DownloadIntentService.this, uri, messenger);
     }
 }

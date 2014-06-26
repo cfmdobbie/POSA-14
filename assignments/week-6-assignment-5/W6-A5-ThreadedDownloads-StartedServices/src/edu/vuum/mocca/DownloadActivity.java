@@ -80,16 +80,16 @@ public class DownloadActivity extends DownloadBase {
                 // bitmap that's been downloaded and returned to
                 // the DownloadActivity as a pathname who's Bundle
             	// key is defined by DownloadUtils.PATHNAME_KEY
-            	
-            	// NOTE: The path of the downloaded file has been added to a
-            	// Bundle which is in turn added to the Message as data
-            	final Bundle bundle = msg.getData();
-            	// NOTE: Path is a String, and is held against a key stored
-            	// in DownloadUtils
-            	final String pathName = bundle.getString(DownloadUtils.PATHNAME_KEY);
-            	// NOTE: Utility method exists in DownloadBase to decode the
-            	// Bitmap and update the ImageView, so we just need to call it:
-            	activity.displayBitmap(pathName);
+                
+                // NOTE: The path of the downloaded file has been added to a
+                // Bundle which is in turn added to the Message as data
+                final Bundle bundle = msg.getData();
+                // NOTE: Path is a String, and is held against a key stored
+                // in DownloadUtils
+                final String pathName = bundle.getString(DownloadUtils.PATHNAME_KEY);
+                // NOTE: Utility method exists in DownloadBase to decode the
+                // Bitmap and update the ImageView, so we just need to call it:
+                activity.displayBitmap(pathName);
             }
     	}
     }
