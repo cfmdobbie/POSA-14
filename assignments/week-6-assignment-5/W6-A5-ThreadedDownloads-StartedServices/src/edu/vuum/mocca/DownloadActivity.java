@@ -2,6 +2,8 @@ package edu.vuum.mocca;
 
 import java.lang.ref.WeakReference;
 
+import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
@@ -78,6 +80,16 @@ public class DownloadActivity extends DownloadBase {
                 // bitmap that's been downloaded and returned to
                 // the DownloadActivity as a pathname who's Bundle
             	// key is defined by DownloadUtils.PATHNAME_KEY
+            	
+            	// NOTE: The path of the downloaded file has been added to a
+            	// Bundle which is in turn added to the Message as data
+            	final Bundle bundle = msg.getData();
+            	// NOTE: Path is a String, and is held against a key stored
+            	// in DownloadUtils
+            	final String pathName = bundle.getString(DownloadUtils.PATHNAME_KEY);
+            	// NOTE: Utility method exists in DownloadBase to decode the
+            	// Bitmap and update the ImageView, so we just need to call it:
+            	activity.displayBitmap(pathName);
             }
     	}
     }
@@ -109,6 +121,13 @@ public class DownloadActivity extends DownloadBase {
             // returned from the makeIntent() factory method.
 
             which = "Starting IntentService";
+            // NOTE: The Intent we need comes from a factory method in the
+            // DownloadIntentService class
+            final Intent downloadIntent = DownloadIntentService.makeIntent(DownloadActivity.this, handler, getUrlString());
+            // NOTE: Just need to call startService with the Intent that refers
+            // to the service's class and encapsulates the URI and the MessageHandler
+            // back-channel, as created above
+            startService(downloadIntent);
             break;
         
         case R.id.thread_pool_button:
@@ -117,6 +136,12 @@ public class DownloadActivity extends DownloadBase {
             // returned from the makeIntent() factory method.
 
             which = "Starting ThreadPoolDownloadService";
+            
+            // NOTE: This time the Intent we need comes from a factory method in
+            // the ThreadPoolDownloadService class instead
+            final Intent threadPoolDownloadIntent = ThreadPoolDownloadService.makeIntent(DownloadActivity.this, handler, getUrlString());
+            // NOTE: Again, just need to call startService with the created Intent
+            startService(threadPoolDownloadIntent);
             break;
         
         }

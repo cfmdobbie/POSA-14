@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Messenger;
@@ -49,7 +50,9 @@ public class ThreadPoolDownloadService extends Service {
         // FixedThreadPool Executor that's configured to use
         // MAX_THREADS. Use a factory method in the Executors class.
 
-        mExecutor = null;
+    	// NOTE: Lots of factory methods exist in the Executors class, but
+    	// the one we want just creates a fixed pool of threads:
+        mExecutor = Executors.newFixedThreadPool(MAX_THREADS);
     }
 
     /**
@@ -73,8 +76,13 @@ public class ThreadPoolDownloadService extends Service {
     	// TODO - You fill in here, by replacing null with an
         // invocation of the appropriate factory method in
         // DownloadUtils that makes a MessengerIntent.
-
-        return null;
+    	
+    	// NOTE: A factory method exists in DownloadUtils to make a suitable
+    	// Intent that contains a Messenger and the passed URI, so we just
+    	// need to call it to obtain the Intent:
+    	final Intent newIntent = DownloadUtils.makeMessengerIntent(context, ThreadPoolDownloadService.class, handler, uri);
+    	// NOTE: And return it!
+        return newIntent;
     }
 
     /**
@@ -93,7 +101,20 @@ public class ThreadPoolDownloadService extends Service {
         // the uri in the intent and returns the file's pathname using
         // a Messenger who's Bundle key is defined by DownloadUtils.MESSENGER_KEY.
 
-        Runnable downloadRunnable = null;
+        Runnable downloadRunnable = new Runnable() {
+        	@Override
+        	public void run() {
+        		// NOTE: First extract the Messenger from the Intent's extras Bundle
+            	final Messenger messenger = (Messenger)(intent.getExtras().get(DownloadUtils.MESSENGER_KEY));
+            	// NOTE: And the URI from the Intent's data field:
+            	final Uri uri = intent.getData();
+            	// NOTE: Then call the helper method in DownloadUtils that will perform
+            	// the actual download and use the Messenger to send a message back to
+            	// the calling Activity's MessageHandler containing the path of the
+            	// downloaded file.
+        		DownloadUtils.downloadAndRespond(ThreadPoolDownloadService.this, uri, messenger);
+        	}
+        };
 
         mExecutor.execute(downloadRunnable);
       
