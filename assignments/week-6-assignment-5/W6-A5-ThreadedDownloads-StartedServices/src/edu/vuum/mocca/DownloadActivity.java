@@ -67,7 +67,7 @@ public class DownloadActivity extends DownloadBase {
     	
     	// Handle any messages that get sent to this Handler
     	@Override
-		public void handleMessage(Message msg) {
+        public void handleMessage(Message msg) {
     		
             // Get an actual reference to the DownloadActivity
             // from the WeakReference.
@@ -120,7 +120,7 @@ public class DownloadActivity extends DownloadBase {
             // DownloadIntentService with the appropriate Intent
             // returned from the makeIntent() factory method.
 
-            which = "Starting IntentService";
+            which = "Starting DownloadIntentService";
             // NOTE: The Intent we need comes from a factory method in the
             // DownloadIntentService class
             final Intent downloadIntent = DownloadIntentService.makeIntent(DownloadActivity.this, handler, getUrlString());
