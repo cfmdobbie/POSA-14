@@ -50,9 +50,12 @@
         </activity>
         
         <!-- THIS IS THE SOUND RECORD ACTIVITY -->
+        <!-- NOTE: Callers of this activity must have the RECORD_AUDIO permission. -->
         <activity
             android:name="edu.vuum.mocca.ui.SoundRecordActivity"
-            android:label="@string/title_activity_sound_record">
+            android:label="@string/title_activity_sound_record"
+            android:permission="android.permission.RECORD_AUDIO"
+            >
             <intent-filter> 										<!-- Line 56 -->
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
