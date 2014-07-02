@@ -25,10 +25,12 @@ public class Options {
     /**
      * Time we should wait for things to instantiate.
      */
-    static final long SHORT_WAIT_TIME = 10000;
+    // CFMD: Was 10000 (10 seconds)
+    static final long SHORT_WAIT_TIME = 2000;
 	
     /**
      * Time we should wait for things to download.
      */
-    static final long LONG_WAIT_TIME = 25000;
+    // CFMD: Was 25000 (25 seconds)
+    static final long LONG_WAIT_TIME = 2000;
 }
