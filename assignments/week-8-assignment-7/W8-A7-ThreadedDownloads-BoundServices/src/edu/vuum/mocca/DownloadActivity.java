@@ -3,6 +3,7 @@ package edu.vuum.mocca;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -76,7 +77,7 @@ public class DownloadActivity extends DownloadBase {
                 // service parameter into an interface that can be
                 // used to make RPC calls to the Service.
 
-                mDownloadCall = null;
+                mDownloadCall = DownloadCall.Stub.asInterface(service);
             }
 
             /**
@@ -109,7 +110,7 @@ public class DownloadActivity extends DownloadBase {
                 // service parameter into an interface that can be
                 // used to make RPC calls to the Service.
 
-                mDownloadRequest = null;
+                mDownloadRequest = DownloadRequest.Stub.asInterface(service);
             }
 
             /**
@@ -145,7 +146,18 @@ public class DownloadActivity extends DownloadBase {
                 // sendPath().  Please use displayBitmap() defined in
                 // DownloadBase.
 
-                Runnable displayRunnable = null;
+                // NOTE: Create a new Runnable that will update the bitmap...
+                final Runnable displayRunnable = new Runnable() {
+					@Override
+					public void run() {
+						// NOTE: imagePathname is declared as final in the method
+						// signature, so is accessible inside this anonymous class.
+						// Don't need to "ghost" it with a final local variable
+						displayBitmap(imagePathname);
+					}
+				};
+				// NOTE: ...And post it to the UI thread using Activity.runOnUiThread
+				runOnUiThread(displayRunnable);
             }
         };
      
@@ -162,12 +174,56 @@ public class DownloadActivity extends DownloadBase {
         case R.id.bound_sync_button:
             // TODO - You fill in here to use mDownloadCall to
             // download the image & then display it.
+        	
+        	// NOTE: Using an AsyncTask here because it avoids blocking the UI thread (don't
+        	// forget the runService(View) method is being called on the UI thread!) and makes
+        	// for a very clean and readable solution.
+        	final AsyncTask<Uri, Void, String> downloadTask = new AsyncTask<Uri, Void, String>() {
+				// NOTE: This task must be executed with at least one parameter which is the
+				// URI pointing to the image to download.  Multiple parameters can be submitted,
+				// but anything beyond the first will be ignored.  We could check this, but as
+        		// the only invocation of this class is directly below, we can control it.
+        		protected String doInBackground(Uri... params) {
+        			// NOTE: downloadImage can throw RemoteException, so this call must be made
+        			// inside a try/catch block.  In the event of an exception being thrown...
+        			// we don't really have a good way to handle it in this Activity!  So for
+        			// this assignment, we'll just write it out to stderr and continue.
+        			// If this were a real app, some feedback to the user should be made.
+        			try {
+        				return mDownloadCall.downloadImage(params[0]);
+        			} catch(RemoteException e) {
+        				e.printStackTrace();
+            			return null;
+        			}
+        		};
+        		@Override
+        		protected void onPostExecute(String result) {
+        			// NOTE: onPostExecute runs in the UI thread, so don't need to explicitly
+        			// post a runnable here.  Incidentally, this would be a good place to handle
+        			// exceptions caught by the doInBackground method, as the result parameter
+        			// passed in would be null.
+        			displayBitmap(result);
+        		}
+			};
+			// NOTE: Execute the task with the specified URI
+			downloadTask.execute(uri);
             break;
 
         case R.id.bound_async_button:
             // TODO - You fill in here to call downloadImage() on
             // mDownloadRequest, passing in the appropriate Uri and
             // callback.
+        	
+        	try {
+        		// NOTE: Ask the service to download the image but don't wait for a
+        		// response.  We supply a callback that the service can use when a
+        		// result is available, however.
+        		mDownloadRequest.downloadImage(uri, mDownloadCallback);
+        	} catch(RemoteException e) {
+        		// NOTE: Again, no good way to handle failures in this app.
+        		// Don't do this in production code!
+        		e.printStackTrace();
+        	}
             break;
         }
     }
