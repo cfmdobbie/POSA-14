@@ -26,11 +26,11 @@ public class Options {
      * Time we should wait for things to instantiate.
      */
     // XXX: Was 10000 (10 seconds)
-    static final long SHORT_WAIT_TIME = 1000;
+    static final long SHORT_WAIT_TIME = 500;
 	
     /**
      * Time we should wait for things to download.
      */
     // XXX: Was 25000 (25 seconds)
-    static final long LONG_WAIT_TIME = 1000;
+    static final long LONG_WAIT_TIME = 500;
 }
